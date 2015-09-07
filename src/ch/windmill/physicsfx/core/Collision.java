@@ -78,16 +78,16 @@ public class Collision {
                 // set normal vector and penetration scalar
                 if(x_overlap < y_overlap) {
                     if(n.x < 0) {
-                        normal = new Vector2D(-1, 0);
-                    } else {
                         normal = new Vector2D(1, 0);
+                    } else {
+                        normal = new Vector2D(-1, 0);
                     }
                     penetration = x_overlap;
                 } else {
                     if(n.y < 0) {
-                        normal = new Vector2D(0, -1);
-                    } else {
                         normal = new Vector2D(0, 1);
+                    } else {
+                        normal = new Vector2D(0, -1);
                     }
                     penetration = y_overlap;
                 }
@@ -178,23 +178,42 @@ public class Collision {
     public void applyImpulse() {
         Vector2D relVelocity = Vector2D.sub(b2.velocity, b1.velocity);  // calculate the relative velocity
         double scalarAlongNormal = Vector2D.dot(relVelocity, normal);   // calculate relative velocity in terms of the normal direction
-        //System.out.println("normal: "+normal.x+" ; "+normal.y);
+        
         if(scalarAlongNormal > 0) {
+            /**System.out.println("scalarNorm: "+scalarAlongNormal);
+            System.out.println("relVel: "+relVelocity.x+" ; "+relVelocity.y);
+            System.out.println("b1_vel: "+b1.velocity.x+" ; "+b1.velocity.y);
+            System.out.println("b2_vel: "+b2.velocity.x+" ; "+b2.velocity.y);
+            System.out.println("normal: "+normal.x+" ; "+normal.y);*/
             return;
         }
         
+        /**System.out.println("scalarNorm: "+scalarAlongNormal);
+            System.out.println("relVel: "+relVelocity.x+" ; "+relVelocity.y);
+            System.out.println("b1_vel: "+b1.velocity.x+" ; "+b1.velocity.y);
+            System.out.println("b2_vel: "+b2.velocity.x+" ; "+b2.velocity.y);
+            System.out.println("normal: "+normal.x+" ; "+normal.y);*/
+        
         double e = Math.min(b1.getRestitution(), b2.getRestitution());  // get the lower restitution
         double j = -(1 + e) * scalarAlongNormal;
-        System.out.println("j before: "+j);
-        j /= 1 / b1.getMass() + 1 / b2.getMass();
-        System.out.println("j: "+j);
+        //j /= 1 / b1.getMass() + 1 / b2.getMass();
+        j /= b1.getInversedMass() + b2.getInversedMass();
         
         // apply impulse
         Vector2D impulse = Vector2D.multiply(normal, j);
         b1.velocity = Vector2D.sub(b1.velocity, Vector2D.multiply(impulse, b1.getInversedMass()));
         b2.velocity = Vector2D.add(b2.velocity, Vector2D.multiply(impulse, b2.getInversedMass()));
+    }
     
-        System.out.println("vel b1: "+ b1.velocity.y);
-        System.out.println("vel b2: "+ b2.velocity.y);
+    public void positionalCorrection() {
+        double percent = 0.4;
+        double slop = 0.01;
+        double correctionScalar = Math.max(penetration - slop, 0.0) / (b1.getInversedMass() + b2.getInversedMass()) * percent;
+        Vector2D correction = Vector2D.multiply(normal, correctionScalar);
+        Vector2D correction1 = Vector2D.multiply(correction, b1.getInversedMass());
+        Vector2D correction2 = Vector2D.multiply(correction, b2.getInversedMass());
+        
+        b1.pos = Vector2D.sub(b1.pos, correction1);
+        b2.pos = Vector2D.add(b2.pos, correction2);
     }
 }

@@ -13,8 +13,8 @@ public enum Material {
     ROCK(0.6, 0.1),
     BOUNCYBALL(0.3, 0.8);
     
-    private double density;
-    private double restitution;
+    private final double density;
+    private final double restitution;
     
     Material(final double density, final double restitution) {
         this.density = density;

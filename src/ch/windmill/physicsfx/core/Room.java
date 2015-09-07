@@ -45,8 +45,10 @@ public class Room {
         updatePhysics(deltaTime);
         
         generateCollidedPairs();
-        //System.out.println("pairs: "+pairs.size());
+        System.out.println("pairs: "+pairs.size());
         resolveCollisions();
+        
+        correctPositions();
     }
     
     /**
@@ -85,6 +87,13 @@ public class Room {
     private void resolveCollisions() {
         for(Collision c : pairs) {
             c.applyImpulse();
+        }
+    }
+    
+    private void correctPositions() {
+        for(Collision c : pairs) {
+            c.positionalCorrection();
+            System.out.println("correct positions");
         }
     }
 }

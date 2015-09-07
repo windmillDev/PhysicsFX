@@ -9,26 +9,28 @@ package ch.windmill.physicsfx.core;
  * Created by jaunerc on 30.08.15.
  */
 public class MassData {
-    private final double mass;
+    private double mass;
     private double inv_mass;
     
     /**
-     * Create new mass data object. Use the are instead of volume for a 2D body.
-     * The inversed mass will be calculated automatically. 
+     * Create new mass data object. Use the area instead of volume for a 2D body.
+     * The inversed mass will be calculated automatically. Infinite mass will be calculated 
+     * if one of the parameters is zero.
      * @param density of the body
      * @param volume of the body
      */
     public MassData(final double density, final double volume) {
-        mass = density * volume;
-
-        calcInversedMass();
+        calcMass(density, volume);
     }
     
     /**
-     * Calculate the inversed mass value based on the raw mass data.
-     * The inversed mass is defined by 1 / mass.
+     * Calculate the mass and inversed mass values. The calcultation is <code>density * volume</code>.
+     * @param density of the body
+     * @param volume of the body
      */
-    private void calcInversedMass() {
+    private void calcMass(final double density, final double volume) {
+        mass = density * volume;
+        
         if(mass == 0) {
             inv_mass = 0;
         } else {
@@ -50,5 +52,14 @@ public class MassData {
      */
     public double getInv_mass() {
         return inv_mass;
+    }
+    
+    /**
+     * Recalculate the mass of the body with the given parameters.
+     * @param density of the body
+     * @param volume of the body
+     */
+    public void recalcMass(final double density, final double volume) {
+        calcMass(density, volume);
     }
 }
