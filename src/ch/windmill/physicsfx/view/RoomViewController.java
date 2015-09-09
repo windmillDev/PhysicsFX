@@ -51,9 +51,9 @@ public class RoomViewController {
     }
     
     private void initBodies() {
-        Body aabb = new Body(new Vector2D(300, 150), new Vector2D(-5, 0));
-        Body aabb2 = new Body(new Vector2D(0, 300), new Vector2D(0, 0));
-        Body circle = new Body(new Vector2D(100,200), new Vector2D(0, -5));
+        Body aabb = new Body(new Vector2D(300, 100), new Vector2D(0, 0));
+        Body aabb2 = new Body(new Vector2D(10, 350), new Vector2D(0, 0));
+        Body circle = new Body(new Vector2D(300,0), new Vector2D(0, 5));
         Body circle2 = new Body(new Vector2D(100,100), new Vector2D(0, 5));
         Body circle3 = new Body(new Vector2D(300,100), new Vector2D(-5, 0));
         
@@ -64,8 +64,8 @@ public class RoomViewController {
         circle2.setCircleShape(45, 45);
         circle3.setCircleShape(45, 45);
         
-        room.addBody(aabb);
-        //room.addBody(circle);
+        //room.addBody(aabb);
+        room.addBody(circle);
         //room.addBody(circle2);
         //room.addBody(circle3);
         
@@ -73,6 +73,7 @@ public class RoomViewController {
             b.setForce(new Vector2D(0, 0.981));
         }
         room.addBody(aabb2);
+        //room.addBody(aabb);
     }
     
     private void canvasTest() {

@@ -49,7 +49,7 @@ public class Collision {
             if(s2 instanceof Circle) {
                 return CirclevsCircle((Circle) s1, (Circle) s2);
             } else if(s2 instanceof AABB) {
-                return AABBvsCircle((AABB) s2, (Circle) s1);
+                return CirclevsAABB((Circle) s1, (AABB) s2);
             }
         }
         
@@ -113,6 +113,12 @@ public class Collision {
         return res;
     }
     
+    private boolean CirclevsAABB(final Circle c, final AABB a) {
+        boolean res = AABBvsCircle(a, c);
+        normal = Vector2D.multiply(normal, -1);
+        return res;
+    }
+    
     private boolean AABBvsCircle(final AABB a, final Circle c) {
         boolean res = false;
         boolean inside = false;
@@ -160,7 +166,7 @@ public class Collision {
                 normal = Vector2D.multiply(normal, -1);
             }
         }
-
+        
         return res;
     }
     
@@ -188,11 +194,11 @@ public class Collision {
             return;
         }
         
-        /**System.out.println("scalarNorm: "+scalarAlongNormal);
+        System.out.println("scalarNorm: "+scalarAlongNormal);
             System.out.println("relVel: "+relVelocity.x+" ; "+relVelocity.y);
             System.out.println("b1_vel: "+b1.velocity.x+" ; "+b1.velocity.y);
             System.out.println("b2_vel: "+b2.velocity.x+" ; "+b2.velocity.y);
-            System.out.println("normal: "+normal.x+" ; "+normal.y);*/
+            System.out.println("normal: "+normal.x+" ; "+normal.y);
         
         double e = Math.min(b1.getRestitution(), b2.getRestitution());  // get the lower restitution
         double j = -(1 + e) * scalarAlongNormal;
@@ -205,15 +211,26 @@ public class Collision {
         b2.velocity = Vector2D.add(b2.velocity, Vector2D.multiply(impulse, b2.getInversedMass()));
     }
     
+    /**
+     * 
+     */
     public void positionalCorrection() {
-        double percent = 0.4;
-        double slop = 0.01;
+        double percent = 0.2;
+        double slop = 0.04;
         double correctionScalar = Math.max(penetration - slop, 0.0) / (b1.getInversedMass() + b2.getInversedMass()) * percent;
         Vector2D correction = Vector2D.multiply(normal, correctionScalar);
         Vector2D correction1 = Vector2D.multiply(correction, b1.getInversedMass());
         Vector2D correction2 = Vector2D.multiply(correction, b2.getInversedMass());
         
-        b1.pos = Vector2D.sub(b1.pos, correction1);
-        b2.pos = Vector2D.add(b2.pos, correction2);
+        //System.out.println("correction1: "+correction1.x+" ; "+correction1.y);
+        
+        /**b1.setPosition(Vector2D.sub(b1.pos, correction1));
+        b2.setPosition(Vector2D.sub(b2.pos, correction2));*/
+        correction1 = Vector2D.sub(b1.pos, correction1);
+        correction2 = Vector2D.sub(b2.pos, correction2);
+        b1.pos.x = correction1.x;
+        b1.pos.y = correction1.y;
+        b2.pos.x = correction2.x;
+        b2.pos.y = correction2.y;
     }
 }

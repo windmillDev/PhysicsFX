@@ -165,4 +165,9 @@ public class Body {
         pos.y += (velocity.y * frameDuration) * Room.PIXELSPERMETER;
         shape.computeShape();
     }
+    
+    public void setPosition(final Vector2D pos) {
+        this.pos = pos;
+        shape.computeShape();
+    }
 }

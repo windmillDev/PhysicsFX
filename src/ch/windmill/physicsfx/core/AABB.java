@@ -21,6 +21,7 @@ public class AABB extends Shape {
     
     @Override
     public void computeShape() {
+        min = upperLeft;
         max = new Vector2D(min.x + width, min.y + height);
     }
 
