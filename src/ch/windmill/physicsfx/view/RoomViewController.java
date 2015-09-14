@@ -15,8 +15,8 @@ import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 
 /**
  * FXML Controller class
@@ -40,12 +40,21 @@ public class RoomViewController {
     private void initialize() {
         
         room = new Room();  // create new room
-        initBodies();       // initialize bodies
+        //initBodies();       // initialize bodies
+        //aLotOfBodiesTest();
+        setOnCanvasClick();
+        
+        // set ground
+        Body ground = new Body(new Vector2D(0, 300));
+        ground.setAABBShape(600, 20);
+        ground.setInfinityMass(true);
+        room.addBody(ground);
+        //aLotOfBodiesTest();
         
         gc = canvas.getGraphicsContext2D();
         gc.setFill(Color.WHITE);
         gc.setStroke(Color.BLUE);
-        
+       
         startAnimationTimer();
         //canvasTest();
     }
@@ -55,63 +64,49 @@ public class RoomViewController {
         Body aabb2 = new Body(new Vector2D(10, 350), new Vector2D(0, 0));
         Body circle = new Body(new Vector2D(300,0), new Vector2D(0, 5));
         Body circle2 = new Body(new Vector2D(100,100), new Vector2D(0, 5));
-        Body circle3 = new Body(new Vector2D(300,100), new Vector2D(-5, 0));
+        Body circle3 = new Body(new Vector2D(400,100), new Vector2D(-5, 0));
         
         aabb.setAABBShape(100, 50);
-        aabb2.setAABBShape(400, 20);
+        aabb2.setAABBShape(450, 20);
         aabb2.setInfinityMass(true);
         circle.setCircleShape(45, 45);
         circle2.setCircleShape(45, 45);
         circle3.setCircleShape(45, 45);
         
-        //room.addBody(aabb);
+        room.addBody(aabb);
         room.addBody(circle);
-        //room.addBody(circle2);
-        //room.addBody(circle3);
+        room.addBody(circle2);
+        room.addBody(circle3);
         
         for(Body b : room.getBodies()) {
             b.setForce(new Vector2D(0, 0.981));
         }
         room.addBody(aabb2);
-        //room.addBody(aabb);
     }
     
-    private void canvasTest() {
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        
-        final long startNanoTime = System.nanoTime();
-        
-        Rectangle rect = new Rectangle();
-        
-        new AnimationTimer() {
-            double posX = 40;
-            double posY = 40;
-            int width = 100;
-            int height = 50;
-            double deltaTime = startNanoTime;
+    private void aLotOfBodiesTest() {
+        int x = 0;
+        int y = 0;
+        int count = 20;
+        for(int i = 0; i < count; i++) {
+            Body b = new Body(new Vector2D(x, y));
+            b.setAABBShape(40, 40);
+            b.setForce(new Vector2D(0, 0.981));
             
-            @Override
-            public void handle(long now) {
-                double t = (now - startNanoTime) / 1000000000.0;
-                deltaTime = (now - deltaTime) / 1000000000.0;
-                
-                gc.setFill(Color.WHITE);
-                gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-                gc.setFill(Color.BLUE);
-                
-                double dX = (0.1 * deltaTime);
-                double dY = (0.1 * deltaTime);
-                
-                posX += (10 * deltaTime);
-                posY += (11 * deltaTime);
-                gc.strokeRect(posX, posY, width, height);
-                gc.fillOval(0, 0, 10, 10);
-                System.out.println("x: "+posX+" y: "+posY+" delta x: "+dX+" delta y: "+dY);
-                deltaTime = now;
+            if(x < 500) {
+                x += 50;
+            } else {
+                x = 0;
+                y += 60;
             }
-        }.start();
+            room.addBody(b);
+        }
+        
     }
     
+    /**
+     * 
+     */
     public void startAnimationTimer() {
         final long startNanos = System.nanoTime();
         
@@ -135,6 +130,9 @@ public class RoomViewController {
         }.start();
     }
     
+    /**
+     * 
+     */
     private void render() {
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());   // overwrite with background
         
@@ -146,5 +144,15 @@ public class RoomViewController {
                 gc.strokeOval(b.pos.x, b.pos.y, b.getShapeWidth(), b.getShapeHeight());
             }
         }
+    }
+    
+    private void setOnCanvasClick() {
+        canvas.setOnMouseClicked((MouseEvent event) -> {
+            System.out.println("posScene: "+event.getX()+" ; "+event.getY());
+            Body b = new Body(new Vector2D(event.getX(), event.getY()));
+            b.setAABBShape(40, 40);
+            b.setForce(new Vector2D(0, 0.981));
+            room.addBody(b);
+        });
     }
 }

@@ -10,7 +10,7 @@ package ch.windmill.physicsfx.core;
  * @author jaunerc
  */
 public class Collision {
-    private Body b1, b2;
+    private final Body b1, b2;
     private double penetration;
     private Vector2D normal;
     
@@ -194,11 +194,11 @@ public class Collision {
             return;
         }
         
-        System.out.println("scalarNorm: "+scalarAlongNormal);
+        /**System.out.println("scalarNorm: "+scalarAlongNormal);
             System.out.println("relVel: "+relVelocity.x+" ; "+relVelocity.y);
             System.out.println("b1_vel: "+b1.velocity.x+" ; "+b1.velocity.y);
             System.out.println("b2_vel: "+b2.velocity.x+" ; "+b2.velocity.y);
-            System.out.println("normal: "+normal.x+" ; "+normal.y);
+            System.out.println("normal: "+normal.x+" ; "+normal.y);*/
         
         double e = Math.min(b1.getRestitution(), b2.getRestitution());  // get the lower restitution
         double j = -(1 + e) * scalarAlongNormal;
@@ -215,19 +215,19 @@ public class Collision {
      * 
      */
     public void positionalCorrection() {
-        double percent = 0.2;
+        double percent = 0.4;
         double slop = 0.04;
         double correctionScalar = Math.max(penetration - slop, 0.0) / (b1.getInversedMass() + b2.getInversedMass()) * percent;
         Vector2D correction = Vector2D.multiply(normal, correctionScalar);
         Vector2D correction1 = Vector2D.multiply(correction, b1.getInversedMass());
         Vector2D correction2 = Vector2D.multiply(correction, b2.getInversedMass());
         
-        //System.out.println("correction1: "+correction1.x+" ; "+correction1.y);
+        //System.out.println("correction: "+correction.x+" ; "+correction.y);
         
         /**b1.setPosition(Vector2D.sub(b1.pos, correction1));
         b2.setPosition(Vector2D.sub(b2.pos, correction2));*/
         correction1 = Vector2D.sub(b1.pos, correction1);
-        correction2 = Vector2D.sub(b2.pos, correction2);
+        correction2 = Vector2D.add(b2.pos, correction2);
         b1.pos.x = correction1.x;
         b1.pos.y = correction1.y;
         b2.pos.x = correction2.x;
