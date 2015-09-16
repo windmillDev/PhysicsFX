@@ -1,5 +1,6 @@
 package ch.windmill.physicsfx;
 
+import ch.windmill.physicsfx.view.ControlViewController;
 import ch.windmill.physicsfx.view.RoomViewController;
 import ch.windmill.physicsfx.view.RootLayoutController;
 import java.io.IOException;
@@ -21,6 +22,8 @@ import javafx.stage.Stage;
 public class MainApp extends Application {
     private Stage primaryStage;
     private BorderPane rootLayout;
+    private ControlViewController controlViewController;
+    private RoomViewController roomViewController;
     
     public static void main(String[] args) {
         launch(args);
@@ -32,6 +35,7 @@ public class MainApp extends Application {
         primaryStage.setTitle("Physics FX");
         initRootLayout();
         showRoomView();
+        showControlView();
     }
     
     private void initRootLayout() {
@@ -58,10 +62,33 @@ public class MainApp extends Application {
             AnchorPane roomView = (AnchorPane) loader.load();
             rootLayout.setCenter(roomView);
             
-            RoomViewController controller = loader.getController();
+            roomViewController = loader.getController();
+            roomViewController.setMainApp(this);
             
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+    }
+    
+    private void showControlView() {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(MainApp.class.getResource("view/ControlView.fxml"));
+        try {
+            AnchorPane controlView = (AnchorPane) loader.load();
+            rootLayout.setRight(controlView);
+            controlViewController = loader.getController();
+            controlViewController.setMainApp(this);
+            
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    public ControlViewController getControlViewController() {
+        return controlViewController;
+    }
+    
+    public RoomViewController getRoomViewController() {
+        return roomViewController;
     }
 }

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 /**
  * This class represents a room in the engine. A room contains bodies. It can compute a time step.
- * That method will invoke all physics calculations like positionupdate, collisiondetection, 
+ * That method will invoke all physics calculations like position update, collision detection, 
  * impulse resolution etc. for all bodies in the room.
  * 
  * All distances should be given in meters. The distances will be multiplied with a factor of 10.
@@ -19,6 +19,8 @@ import java.util.ArrayList;
  */
 public class Room {
     public final static int PIXELSPERMETER = 10;    // factor to multiply with all pixel values
+    public final static double GRAVITYEARTH = 9.801; // gravity constant
+    
     private final ArrayList<Body> bodies;
     private final ArrayList<Collision> pairs;
     
@@ -133,6 +135,22 @@ public class Room {
     private void correctPositions() {
         for(Collision c : pairs) {
             c.positionalCorrection();
+        }
+    }
+    
+    public void setGravity(final boolean gravityOn) {
+        if(gravityOn) {
+            for(Body b : bodies) {
+                if(b.getInversedMass() != 0.0) {
+                    b.setForce(new Vector2D(0, (GRAVITYEARTH / PIXELSPERMETER)));
+                }
+            }
+        } else {
+            for(Body b : bodies) {
+                if(b.getInversedMass() != 0) {
+                    b.setForce(new Vector2D());
+                }
+            }
         }
     }
 }

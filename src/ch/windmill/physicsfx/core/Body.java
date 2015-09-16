@@ -102,14 +102,26 @@ public class Body {
     
     /**
      * Set a velocity vector.
-     * @param velocity 2D vector.
+     * @param velocity 2D vector
      */
     public void setVelocity(Vector2D velocity) {
         this.velocity = velocity;
     }
     
+    /**
+     * Set a force vector.
+     * @param force 2D vector
+     */
     public void setForce(final Vector2D force) {
         this.force = force;
+    }
+    
+    /**
+     * Set the material value.
+     * @param material value
+     */
+    public void setMaterial(final Material material) {
+        this.material = material;
     }
     
     /**
@@ -149,7 +161,7 @@ public class Body {
      * of the massData field.
      */
     private void computeMass() {
-        massData.recalcMass(1, shape.computeArea());
+        massData.recalcMass(material.getDensity(), shape.computeArea());
     }
     
     /**
@@ -166,8 +178,10 @@ public class Body {
         shape.computeShape();
     }
     
+    
     public void setPosition(final Vector2D pos) {
-        this.pos = pos;
+        this.pos.x = pos.x;
+        this.pos.y = pos.y;
         shape.computeShape();
     }
 }

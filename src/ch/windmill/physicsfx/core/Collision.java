@@ -6,14 +6,21 @@
 package ch.windmill.physicsfx.core;
 
 /**
- *
+ * A collision object compute the physics for a collision of the two bodies. The penetration and normal fields will be calculated
+ * with the collision check method. So, they should not be set manually.
  * @author jaunerc
  */
 public class Collision {
-    private final Body b1, b2;
+    private Body b1, b2;
     private double penetration;
     private Vector2D normal;
     
+    /**
+     * Create a new collision object. The default values for penetration is 0.
+     * A default 2D vector object will be saved into the normal field.
+     * @param b1 body one
+     * @param b2 body two
+     */
     public Collision(final Body b1, final Body b2) {
         this.b1 = b1;
         this.b2 = b2;
@@ -21,12 +28,36 @@ public class Collision {
         normal = new Vector2D();
     }
     
+    public void setBody1(final Body b1) {
+        this.b1 = b1;
+    }
+    
+    public Body getBody1() {
+        return b1;
+    }
+    
+    public void setBody2(final Body b2) {
+        this.b2 = b2;
+    }
+    
+    public Body getBody2() {
+        return b2;
+    }
+    
     public void setPenetration(final double penetration) {
         this.penetration = penetration;
     }
     
+    public double getPenetration() {
+        return penetration;
+    }
+    
     public void setNormal(final Vector2D normal) {
         this.normal = normal;
+    }
+    
+    public Vector2D getNormal() {
+        return normal;
     }
     
     /**
@@ -56,6 +87,12 @@ public class Collision {
         return false;
     }
     
+    /**
+     * Collision detection for two aabb shapes.
+     * @param a1 aabb one
+     * @param a2 aabb two
+     * @return if the shapes are collided
+     */
     private boolean AABBvsAABB(final AABB a1, final AABB a2) {
         boolean res = false;
         Vector2D n = Vector2D.sub(a1.getCenter(), a2.getCenter());  // calculate the vector from the middle position of r1 to the middle position of r2.
@@ -98,6 +135,12 @@ public class Collision {
         return res;
     }
     
+    /**
+     * Collision detection for two circle shapes.
+     * @param c1 circle one
+     * @param c2 circle two
+     * @return if the shapes are collided
+     */
     private boolean CirclevsCircle(final Circle c1, final Circle c2) {
         boolean res = false;
         double r = c1.radius + c2.radius;
@@ -113,12 +156,25 @@ public class Collision {
         return res;
     }
     
+    /**
+     * Collision detection for a circle and an aabb shape. This method invokes the AABBvsCircle method and
+     * multiply the normal vector with -1.
+     * @param c circle shape
+     * @param a aabb shape
+     * @return if the shapes are collided
+     */
     private boolean CirclevsAABB(final Circle c, final AABB a) {
         boolean res = AABBvsCircle(a, c);
         normal = Vector2D.multiply(normal, -1);
         return res;
     }
     
+    /**
+     * Collision detection for an aabb and a circle shape.
+     * @param a aabb shape
+     * @param c circle shape
+     * @return if the shapes are collided
+     */
     private boolean AABBvsCircle(final AABB a, final Circle c) {
         boolean res = false;
         boolean inside = false;
@@ -181,6 +237,9 @@ public class Collision {
         return Math.max(Math.min(d, max), min);
     }
     
+    /**
+     * 
+     */
     public void applyImpulse() {
         Vector2D relVelocity = Vector2D.sub(b2.velocity, b1.velocity);  // calculate the relative velocity
         double scalarAlongNormal = Vector2D.dot(relVelocity, normal);   // calculate relative velocity in terms of the normal direction
@@ -212,25 +271,18 @@ public class Collision {
     }
     
     /**
-     * 
+     * Correct the positions of the bodies with a portion of the normal vector. This method should be invoked after the 
+     * apply impulse method. This will correct the issue, that bodies sinking into infinite mass bodies.
      */
     public void positionalCorrection() {
-        double percent = 0.4;
+        double percent = 0.2;
         double slop = 0.04;
         double correctionScalar = Math.max(penetration - slop, 0.0) / (b1.getInversedMass() + b2.getInversedMass()) * percent;
         Vector2D correction = Vector2D.multiply(normal, correctionScalar);
-        Vector2D correction1 = Vector2D.multiply(correction, b1.getInversedMass());
-        Vector2D correction2 = Vector2D.multiply(correction, b2.getInversedMass());
+        //Vector2D correction1 = Vector2D.sub(b1.pos, Vector2D.multiply(correction, b1.getInversedMass()));
+        //Vector2D correction2 = Vector2D.add(b2.pos, Vector2D.multiply(correction, b2.getInversedMass()));
         
-        //System.out.println("correction: "+correction.x+" ; "+correction.y);
-        
-        /**b1.setPosition(Vector2D.sub(b1.pos, correction1));
-        b2.setPosition(Vector2D.sub(b2.pos, correction2));*/
-        correction1 = Vector2D.sub(b1.pos, correction1);
-        correction2 = Vector2D.add(b2.pos, correction2);
-        b1.pos.x = correction1.x;
-        b1.pos.y = correction1.y;
-        b2.pos.x = correction2.x;
-        b2.pos.y = correction2.y;
+        b1.setPosition(Vector2D.sub(b1.pos, Vector2D.multiply(correction, b1.getInversedMass())));
+        b2.setPosition(Vector2D.add(b2.pos, Vector2D.multiply(correction, b2.getInversedMass())));
     }
 }

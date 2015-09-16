@@ -5,19 +5,10 @@
  */
 package ch.windmill.physicsfx.view;
 
-import javafx.fxml.FXML;
-import javafx.scene.canvas.Canvas;
-
 /**
- * FXML Controller class
  *
  * @author Cyrill Jauner
  */
-public class RootLayoutController {
-    
-    
-    @FXML
-    private void handleExit() {
-        System.exit(0);
-    }
+public enum ShapeType {
+    AABB,CIRCLE;
 }

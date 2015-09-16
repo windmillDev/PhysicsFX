@@ -5,6 +5,7 @@
  */
 package ch.windmill.physicsfx.view;
 
+import ch.windmill.physicsfx.MainApp;
 import ch.windmill.physicsfx.core.AABB;
 import ch.windmill.physicsfx.core.Body;
 import ch.windmill.physicsfx.core.Circle;
@@ -24,7 +25,7 @@ import javafx.scene.paint.Color;
  * @author Cyrill Jauner
  */
 public class RoomViewController {
-    private final static int FPS = 60;
+    public final static int FPS = 60;
     
     @FXML
     private Canvas canvas;
@@ -33,15 +34,14 @@ public class RoomViewController {
     private Scene scene;
     private Room room;
     
+    private MainApp mainApp;
+    
     /**
-     * Initilizes the controller class. This method is auto called after the fxml file has been loaded.
+     * Initializes the controller class. This method is auto called after the fxml file has been loaded.
      */
     @FXML
     private void initialize() {
-        
         room = new Room();  // create new room
-        //initBodies();       // initialize bodies
-        //aLotOfBodiesTest();
         setOnCanvasClick();
         
         // set ground
@@ -56,10 +56,29 @@ public class RoomViewController {
         gc.setStroke(Color.BLUE);
        
         startAnimationTimer();
-        //canvasTest();
+    }
+
+    public Room getRoom() {
+        return room;
+    }
+
+    public void setRoom(Room room) {
+        this.room = room;
+    }
+
+    public void setFillColor(Color c) {
+        gc.setFill(c);
+    }
+
+    public void setStrokeColor(Color c) {
+        gc.setStroke(c);
     }
     
-    private void initBodies() {
+    public void setMainApp(final MainApp mainApp) {
+        this.mainApp = mainApp;
+    }
+    
+    /**private void initBodies() {
         Body aabb = new Body(new Vector2D(300, 100), new Vector2D(0, 0));
         Body aabb2 = new Body(new Vector2D(10, 350), new Vector2D(0, 0));
         Body circle = new Body(new Vector2D(300,0), new Vector2D(0, 5));
@@ -82,9 +101,9 @@ public class RoomViewController {
             b.setForce(new Vector2D(0, 0.981));
         }
         room.addBody(aabb2);
-    }
+    }*/
     
-    private void aLotOfBodiesTest() {
+    /**private void aLotOfBodiesTest() {
         int x = 0;
         int y = 0;
         int count = 20;
@@ -102,10 +121,11 @@ public class RoomViewController {
             room.addBody(b);
         }
         
-    }
+    }*/
     
     /**
-     * 
+     * Start the animation timer loop. The animation timer will calculate the time delta between the last execution and now.
+     * This delta will be used as parameter for the computeTimeStep method.
      */
     public void startAnimationTimer() {
         final long startNanos = System.nanoTime();
@@ -131,7 +151,8 @@ public class RoomViewController {
     }
     
     /**
-     * 
+     * Render the canvas. It overwrites the old drawing with an filled rectangle first. After that, it
+     * draws each body of the room object with his shape to the canvas.
      */
     private void render() {
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());   // overwrite with background
@@ -146,12 +167,24 @@ public class RoomViewController {
         }
     }
     
+    /**
+     * Set a mouse click listener for the canvas object. Every click on the canvas will add an new body to the room.
+     * The click position is the start position for the shape.
+     */
     private void setOnCanvasClick() {
         canvas.setOnMouseClicked((MouseEvent event) -> {
-            System.out.println("posScene: "+event.getX()+" ; "+event.getY());
+            ControlViewController control = mainApp.getControlViewController();
             Body b = new Body(new Vector2D(event.getX(), event.getY()));
-            b.setAABBShape(40, 40);
+            
+            if(control.getShapeType() == ShapeType.AABB) {
+                b.setAABBShape(40, 40);
+            } else {
+                b.setCircleShape(40, 40);
+            }
+            
             b.setForce(new Vector2D(0, 0.981));
+            b.setMaterial(control.getShapeMaterial());
+            
             room.addBody(b);
         });
     }
