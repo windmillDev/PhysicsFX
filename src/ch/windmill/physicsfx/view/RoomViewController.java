@@ -181,8 +181,6 @@ public class RoomViewController {
             } else {
                 b.setCircleShape(40, 40);
             }
-            
-            b.setForce(new Vector2D(0, 0.981));
             b.setMaterial(control.getShapeMaterial());
             
             room.addBody(b);
